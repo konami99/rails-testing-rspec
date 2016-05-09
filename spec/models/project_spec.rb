@@ -1,33 +1,42 @@
 require 'rails_helper'
 
 RSpec.describe Project do
-    let(:project) { Project.new }
-    let(:task) { Task.new }
+    describe "initialization" do
+        let(:project) { Project.new }
+        let(:task) { Task.new }
 
-    it "contains a project with no tasks to be done" do
-        
-        expect(project.done?).to be_truthy
-        
-        
-    end
-    
-    it "knows that a project with an incomplete task is not done" do
+        it "contains a project with no tasks to be done" do
             
-            project.tasks << task
-            expect(project.done?).to be_falsy
+            expect(project.done?).to be_truthy
+            
+            
         end
         
-    it "can distinguish a completed task" do
-        task = Task.new
-        expect(task).not_to be_complete
-        task.mark_completed
-        expect(task).to be_complete
-    end
-    
-    it "" do
-        project.tasks << task
-        task.mark_completed
-        expect(project).to be_done
+        it "knows that a project with an incomplete task is not done" do
+                
+                project.tasks << task
+                expect(project.done?).to be_falsy
+            end
+            
+        it "can distinguish a completed task" do
+            task = Task.new
+            expect(task).not_to be_complete
+            task.mark_completed
+            expect(task).to be_complete
+        end
+        
+        it "" do
+            project.tasks << task
+            task.mark_completed
+            expect(project).to be_done
+        end
+        
+        it "properly estimates a blank project" do
+            expect(project.completed_velocity).to eq(0)
+            expect(project.current_rate).to eq(0)
+            expect(project.projected_days_remaining.nan?).to be_truthy
+            expect(project).not_to be_on_schedule
+        end
     end
     
     describe "estimates" do
@@ -48,6 +57,26 @@ RSpec.describe Project do
         it "can calculate remaining size" do
             expect(project.remaining_size).to eq(5)
         end
+        
+        it "knows its velocity" do
+            expect(project.completed_velocity).to eq(3)
+        end
+        
+        it "knows its rate" do
+            expect(project.current_rate).to eq(1.0/7)
+        end
+        
+        it "knows its projected time remaining" do
+            expect(project.projected_days_remaining).to eq(35)
+        end
+        
+        it "knows if it is on schedule" do
+            project.due_date = 1.week.from_now
+            expect(project).not_to be_on_schedule
+            project.due_date = 6.months.from_now
+            expect(project).to be_on_schedule
+        end
+        
         
     end
     
@@ -70,6 +99,7 @@ RSpec.describe Project do
             expect(task).to be_part_of_velocity
             expect(task.points_toward_velocity).to eq(3)
         end
+        
         
     end
 end
