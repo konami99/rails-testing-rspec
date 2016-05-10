@@ -1,9 +1,5 @@
 class Project
-    attr_accessor :tasks, :due_date
-    
-    def initialize
-        @tasks = []
-    end
+    has_many :tasks
     
     def done?
         tasks.reject(&:complete?).empty?
